@@ -2,10 +2,10 @@ package it.polito.tdp.lab04.model;
 
 public class Studente {
 	
-	int matricola;
-	String cognome;
-	String nome;
-	String CDS;
+	private int matricola;
+	private String cognome;
+	private String nome;
+	private String CDS;
 	
 	
 	public Studente(int matricola, String cognome, String nome, String cDS) {

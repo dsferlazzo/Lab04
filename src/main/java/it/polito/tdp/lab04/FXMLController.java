@@ -40,44 +40,87 @@ public class FXMLController {
 
     @FXML
     void handleCercaCorsi(ActionEvent event) {
+    	
+    	String matricola = txtMatricola.getText();
+    	int numMatricola;
+    	try {
+    		numMatricola=Integer.parseInt(matricola);
+    	} catch(Exception e)
+    	{
+    		e.printStackTrace();
+    		txtArea.setText("Numero matricola non valido");
+    		return;
+    	}
+    	txtMatricola.clear();
+    	
+    	Studente s = model.getStudente(numMatricola);
+    	if(s==null)
+    	{
+    		txtArea.setText("Studente non registrato");
+    		return;
+    	}
+    	
+    	List<Corso> corsi = this.model.getCorsiByStudente(s);
+    	if(corsi.size()==0)
+    	{
+    		txtArea.setText("Lo studente non è iscritto a nessun corso");
+    		return;
+    	}
+    	
+    	for(Corso c:corsi)
+    	{
+    		txtArea.appendText(c+"\n");
+    	}
 
     }
 
     @FXML
     void handleCercaIscrittiCorso(ActionEvent event) {
     	
-    	if(cmbCorsi.getValue().equals(""))		//GESTISCO COMBOBOX VUOTA
+    	if(txtMatricola.getText().equals(""))
     	{
-    		txtArea.appendText("Corso non inserito");
+	    	if(cmbCorsi.getValue().equals(""))		//GESTISCO COMBOBOX VUOTA
+	    	{
+	    		txtArea.appendText("Corso non inserito");
+	    		return;
+	    	}
+	    	
+	    	List<Studente> studenti = this.model.getStudentiByCorso(model.getCorsoByNome(cmbCorsi.getValue()));
+	    	
+	    	if(studenti.size()==0)
+	    	{
+	    		txtArea.appendText("Corso senza iscritti");
+	    		return;
+	    	}
+	    	
+	    	for(Studente s:studenti)
+	    	{
+	    		txtArea.appendText(s.toString() + "\n");
+	    	}
+	    	return;
+    	}
+    	
+    	String matricola = txtMatricola.getText();
+    	int numMatricola;
+    	try {
+    		numMatricola=Integer.parseInt(matricola);
+    	} catch(Exception e)
+    	{
+    		e.printStackTrace();
+    		txtArea.setText("Numero matricola non valido");
     		return;
-    	}
+    	}	//GESTISCO IL CONTROLLO DELLA MATRICOLA
     	
-    	List<Corso> corsi = model.getCorsi();
-    	Corso corsoScelto= null;
-    	for(Corso c:corsi)
+    	Corso c = model.getCorsoByNome(cmbCorsi.getValue());
+    	Studente s = model.getStudente(numMatricola);
+    	if(this.model.isStudenteIscrittoACorso(s, c))
     	{
-    		if(c.getNome().equals(cmbCorsi.getValue()))
-    		{
-    			corsoScelto=c;
-    			break;
-    		}
+    		txtArea.setText("Lo studente "+matricola+" è iscritto al corso "+cmbCorsi.getValue());
     	}
-    	
-    	List<Studente> studenti = this.model.getStudentiByCorso(corsoScelto);
-    	
-    	if(studenti.size()==0)
+    	else
     	{
-    		txtArea.appendText("Corso senza iscritti");
-    		return;
+    		txtArea.setText("Lo studente "+matricola+" non è iscritto al corso "+cmbCorsi.getValue());
     	}
-    	
-    	for(Studente s:studenti)
-    	{
-    		txtArea.appendText(s.toString() + "\n");
-    	}
-    	
-    	
-
     }
 
     @FXML
@@ -115,6 +158,40 @@ public class FXMLController {
 
     @FXML
     void handleIscrivi(ActionEvent event) {
+    	
+    	String nomeCorso = cmbCorsi.getValue();
+    	String matricola = txtMatricola.getText();
+    	
+    	if(nomeCorso.equals("") || matricola.equals(""))
+    	{
+    		txtArea.appendText("Inserire un numero di matricola ed un nome corso\n");
+    		return;
+    	}
+    	int numMatricola;
+    	try {
+    		numMatricola=Integer.parseInt(matricola);
+    	} catch(Exception e)
+    	{
+    		e.printStackTrace();
+    		txtArea.appendText("Numero matricola non valido\n");
+    		return;
+    	}	//GESTISCO IL CONTROLLO DELLA MATRICOLA
+    	
+    	Studente s=this.model.getStudente(numMatricola);
+    	if(s==null)
+    	{
+    		txtArea.appendText("Studente non registrato\n");
+    		return;
+    	}		//CONTROLLO CHE LO STUDENTE ESISTA
+    	
+    	boolean b = this.model.InscriviStudenteACorso(s, this.model.getCorsoByNome(nomeCorso));
+    	
+    	if(b==true)
+    		txtArea.appendText("Studente aggiunto con successo\n");
+    	else txtArea.appendText("Errore nell'aggiunta dello studente\n");
+    	
+    	
+    
 
     }
 

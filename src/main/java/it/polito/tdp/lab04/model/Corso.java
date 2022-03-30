@@ -2,10 +2,10 @@ package it.polito.tdp.lab04.model;
 
 public class Corso {
 	
-	String codins;
-	int crediti;
-	String nome;
-	int pd;
+	private String codins;
+	private int crediti;
+	private String nome;
+	private int pd;
 	
 	
 	public Corso(String codins, int crediti, String nome, int pd) {
@@ -82,7 +82,7 @@ public class Corso {
 	
 	@Override
 	public String toString() {
-		return "Corso [codins=" + codins + ", crediti=" + crediti + ", nome=" + nome + ", pd=" + pd + "]";
+		return codins + "     " + crediti + "     " + nome + "     " + pd;
 	}
 	
 	

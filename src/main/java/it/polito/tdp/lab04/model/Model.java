@@ -27,6 +27,30 @@ public class Model {
 		return corsoDAO.getStudentiIscrittiAlCorso(corso);
 	}
 	
+	public Corso getCorsoByNome(String nome) {
+		List<Corso> corsi = this.getCorsi();		//OTTENGO IL CORSO DAL CODINS
+    	for(Corso c:corsi)
+    	{
+    		if(c.getNome().equals(nome))
+    		{
+    			return c;
+    		}
+    	}	
+		return null;
+	}
+	
+	public List<Corso> getCorsiByStudente(Studente s){
+		return corsoDAO.getCorsiByStudente(s);
+	}
+	
+	public boolean isStudenteIscrittoACorso(Studente studente, Corso corso) {
+		return corsoDAO.isStudenteIscrittoACorso(studente, corso);
+	}
+	
+	public boolean InscriviStudenteACorso(Studente studente, Corso corso) {
+		return corsoDAO.inscriviStudenteACorso(studente, corso);
+	}
+	
 	
 
 }

@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import it.polito.tdp.lab04.model.Corso;
 import it.polito.tdp.lab04.model.Studente;
@@ -132,14 +134,107 @@ public class CorsoDAO {
 		}
 		
 	}
-
-	/*
-	 * Data una matricola ed il codice insegnamento, iscrivi lo studente al corso.
+	/**
+	 * Dato uno studente, il metodo cerca tutti i corsi a cui è iscritto
+	 * @param s studente di cui dobbiamo cercare i corsi
+	 * @return
 	 */
+	public List<Corso> getCorsiByStudente(Studente s)
+	{
+		final String sql = "SELECT c.codins, c.crediti, c.nome, c.pd "
+				+ "FROM corso c, iscrizione i "
+				+ "WHERE c.codins=i.codins AND i.matricola=?";
+
+		List<Corso> corsi = new LinkedList<Corso>();
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, s.getMatricola());
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next())
+			{
+				Corso c = new Corso(rs.getString("codins"), rs.getInt("crediti"), rs.getString("nome"), rs.getInt("pd"));
+				corsi.add(c);
+			}
+			
+			conn.close();
+			return corsi;
+			
+		} catch(SQLException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException("Errore Db", e);
+		}
+	}
+	/**
+	 * Dato uno studente ed un corso, il metodo ritorna true se lo studente è iscritto al corso,
+	 * altrimenti, ritorna false	
+	 * @param studente
+	 * @param corso
+	 * @return
+	 */
+	public boolean isStudenteIscrittoACorso(Studente studente, Corso corso)
+	{
+		final String sql = "SELECT * "
+				+ "FROM iscrizione "
+				+ "WHERE codins=? AND matricola=?";
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, corso.getCodins());
+			st.setInt(2, studente.getMatricola());
+			ResultSet rs = st.executeQuery();
+			Map<Integer, String> map = new TreeMap<Integer,String>();
+			while(rs.next())
+			{
+				map.put(rs.getInt("matricola"), rs.getString("codins"));
+			}
+			if(map.size()>=1)
+				return true;
+			else return false;
+			
+			
+		} catch(SQLException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException("Errore Db", e);
+		}
+	}
+
+	/**
+	 * Data una matricola ed il codice insegnamento, iscrivi lo studente al corso.
+	 **/
 	public boolean inscriviStudenteACorso(Studente studente, Corso corso) {
 		// TODO
 		// ritorna true se l'iscrizione e' avvenuta con successo
-		return false;
+		
+		if(this.isStudenteIscrittoACorso(studente, corso))
+		{
+			System.out.println("Studente gia iscritto a corso");
+			return false;
+		}
+		
+		final String sql = "INSERT INTO iscrizione (matricola, codins) "
+				+ "VALUES (?,?)";
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, studente.getMatricola());
+			st.setString(2, corso.getCodins());
+
+			int res = st.executeUpdate();
+			conn.close();
+			
+			return (res==1);
+			
+			
+		} catch(SQLException e )
+		{
+			e.printStackTrace();
+			throw new RuntimeException("Errore Db", e);
+		}
 	}
 
 }
